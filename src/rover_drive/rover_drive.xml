@@ -1,0 +1,9 @@
+<library path="rover_drive">
+  <class name="rover_drive/PropulsionInterfaceHardware"
+         type="rover_drive::PropulsionInterfaceHardware"
+         base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Hardware Interface for Differential Drive Arduino controller.
+    </description>
+  </class>
+</library>
