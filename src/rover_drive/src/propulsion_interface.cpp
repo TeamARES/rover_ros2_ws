@@ -22,10 +22,10 @@ namespace rover_drive
 
         time_ = std::chrono::system_clock::now();
 
-
         config_.forward_left_wheel_name = info_.hardware_parameters["forward_left_wheel_name"];
         config_.forward_right_wheel_name = info_.hardware_parameters["forward_right_wheel_name"];
         config_.rear_left_wheel_name = info_.hardware_parameters["rear_left_wheel_name"];
+        config_.rear_right_wheel_name = info_.hardware_parameters["rear_right_wheel_name"];
         config_.loop_rate = std::stof(info_.hardware_parameters["loop_rate"]);
         config_.device = info_.hardware_parameters["device"];
         config_.baud_rate = std::stoi(info_.hardware_parameters["baud_rate"]);
@@ -140,7 +140,8 @@ namespace rover_drive
 
     hardware_interface::return_type PropulsionInterfaceHardware::write()
     {
-        if(!arduino_.connected()){
+        if (!arduino_.connected())
+        {
             return hardware_interface::return_type::ERROR;
         }
 
@@ -149,9 +150,10 @@ namespace rover_drive
         return hardware_interface::return_type::OK;
     }
 
+}
+
 #include "pluginlib/class_list_macros.hpp"
 
-    PLUGINLIB_EXPORT_CLASS(
-        rover_drive::PropulsionInterfaceHardware,
-        hardware_interface::SystemInterface)
-}
+PLUGINLIB_EXPORT_CLASS(
+    rover_drive::PropulsionInterfaceHardware,
+    hardware_interface::SystemInterface)

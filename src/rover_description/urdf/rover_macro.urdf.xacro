@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:property name="rover_front_bumper_extend" value="$(optenv ROVER_FRONT_BUMPER_EXTEND 0)" />
+  <xacro:property name="rover_rear_bumper_extend" value="$(optenv ROVER_REAR_BUMPER_EXTEND 0)" />
+
+  <xacro:arg name="robot_namespace" default="/" />
+  <xacro:arg name="is_sim" default="false" />
+
+  <!-- Included URDF/XACRO Files -->
+  <xacro:include filename="$(find rover_description)/urdf/wheel.urdf.xacro" />
+
+  <xacro:property name="M_PI" value="3.14159"/>
+  <material name="blue">
+      <color rgba="0.2 0.2 1 1"/>
+  </material>
+
+  <xacro:macro name="rover" params="prefix">
+
+    <!-- Base Size -->
+    <xacro:property name="base_x_size" value="0.98740000" />
+    <xacro:property name="base_y_size" value="0.57090000" />
+    <xacro:property name="base_z_size" value="0.24750000" />
+
+    <!-- Wheel Mounting Positions -->
+    <xacro:property name="wheelbase" value="0.5120" />
+    <xacro:property name="track" value="0.5708" />
+    <xacro:property name="wheel_vertical_offset" value="0.03282" />
+
+    <!-- Wheel Properties -->
+    <xacro:property name="wheel_length" value="0.1143" />
+    <xacro:property name="wheel_radius" value="0.1651" />
+
+    <!-- Base link is the center of the robot's bottom plate -->
+    <link name="${prefix}base_link">
+      <!-- <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh filename="package://rover_description/meshes/base_link.dae" />
+        </geometry>
+      </visual> -->
+      <visual>
+      <origin xyz="${( rover_front_bumper_extend - rover_rear_bumper_extend ) / 2.0} 0 ${base_z_size/4}" rpy="0 0 0" />
+        <geometry>
+          <box size="${ base_x_size + rover_front_bumper_extend + rover_rear_bumper_extend } ${base_y_size} ${base_z_size/2}"/>
+        </geometry>
+        <material name="blue"/>
+      </visual>
+      <collision>
+        <origin xyz="${( rover_front_bumper_extend - rover_rear_bumper_extend ) / 2.0} 0 ${base_z_size/4}" rpy="0 0 0" />
+        <geometry>
+          <box size="${ base_x_size + rover_front_bumper_extend + rover_rear_bumper_extend } ${base_y_size} ${base_z_size/2}"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 ${base_z_size*3/4-0.01}" rpy="0 0 0" />
+        <geometry>
+          <box size="${base_x_size*4/5} ${base_y_size} ${base_z_size/2-0.02}"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Base footprint is on the ground under the robot -->
+    <link name="${prefix}base_footprint"/>
+
+    <joint name="${prefix}base_footprint_joint" type="fixed">
+      <origin xyz="0 0 ${wheel_vertical_offset - wheel_radius}" rpy="0 0 0" />
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}base_footprint" />
+    </joint>
+
+    <!-- Inertial link stores the robot's inertial information -->
+    <link name="${prefix}inertial_link">
+      <inertial>
+        <mass value="46.034" />
+        <origin xyz="-0.00065 -0.085 0.062" />
+        <inertia ixx="0.6022" ixy="-0.02364" ixz="-0.1197" iyy="1.7386" iyz="-0.001544" izz="2.0296" />
+      </inertial>
+    </link>
+
+    <joint name="${prefix}inertial_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <parent link="${prefix}base_link" />
+      <child link="${prefix}inertial_link" />
+    </joint>
+
+
+    <!-- Rover wheel macros -->
+    <xacro:rover_wheel wheel_prefix="${prefix}front_left" prefix="${prefix}">
+      <origin xyz="${wheelbase/2} ${track/2} ${wheel_vertical_offset}" rpy="0 0 0" />
+    </xacro:rover_wheel>
+    <xacro:rover_wheel wheel_prefix="${prefix}front_right" prefix="${prefix}">
+      <origin xyz="${wheelbase/2} ${-track/2} ${wheel_vertical_offset}" rpy="0 0 0" />
+    </xacro:rover_wheel>
+    <xacro:rover_wheel wheel_prefix="${prefix}rear_left" prefix="${prefix}">
+      <origin xyz="${-wheelbase/2} ${track/2} ${wheel_vertical_offset}" rpy="0 0 0" />
+    </xacro:rover_wheel>
+    <xacro:rover_wheel wheel_prefix="${prefix}rear_right" prefix="${prefix}">
+      <origin xyz="${-wheelbase/2} ${-track/2} ${wheel_vertical_offset}" rpy="0 0 0" />
+    </xacro:rover_wheel>
+
+    <ros2_control name="${prefix}rover_drive" type="system">
+      <hardware>
+        <xacro:if value="$(arg is_sim)">
+          <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </xacro:if>
+        <xacro:unless value="$(arg is_sim)">
+          <plugin>rover_drive/PropulsionInterfaceHardware</plugin>
+          <plugin>fake_components/GenericSystem</plugin>
+          <param name="forward_left_wheel_name">front_left_wheel_joint</param>
+          <param name="forward_right_wheel_name">front_right_wheel_joint</param>
+          <param name="rear_left_wheel_name">rear_left_wheel_joint</param>
+          <param name="rear_right_wheel_name">rear_right_wheel_joint</param>
+          <param name="loop_rate">30</param>
+          <param name="baud_rate">57600</param>
+          <param name="timeout">1000</param>
+          <param name="forward_left_enc_counts_per_rev">1000</param>
+          <param name="forward_right_enc_counts_per_rev">1000</param>
+          <param name="rear_left_enc_counts_per_rev">1000</param>
+          <param name="rear_right_enc_counts_per_rev">1000</param>
+          <param name="device">/dev/pts/11</param>
+        </xacro:unless>
+      </hardware>
+      <joint name="${prefix}front_left_wheel_joint">
+        <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}rear_left_wheel_joint">
+        <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}front_right_wheel_joint">
+        <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="${prefix}rear_right_wheel_joint">
+        <command_interface name="velocity">
+          <param name="min">-1</param>
+          <param name="max">1</param>
+        </command_interface>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>
