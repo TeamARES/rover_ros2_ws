@@ -27,6 +27,8 @@ add_library(
   ${PROJECT_NAME}
   SHARED
   src/propulsion_interface.cpp
+  src/wheel.cpp
+  src/arduino.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}
@@ -42,6 +44,7 @@ ament_target_dependencies(
   serial
 )
 
+pluginlib_export_plugin_description_file(hardware_interface rover_drive.xml)
 
 # INSTALL
 install(

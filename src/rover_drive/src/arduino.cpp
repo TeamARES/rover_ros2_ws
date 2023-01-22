@@ -53,7 +53,7 @@ void Arduino::writePIDValues(float k_p, float k_i, float k_d, float k_o){
     Arduino::sendMessage(ss.str());
 }
 
-std::string Arduino::sendMessage(const std::string &message, bool print_output = false){
+std::string Arduino::sendMessage(const std::string &message, bool print_output){
     serial_connection_.write(message);
     std::string response = serial_connection_.readline();
 
