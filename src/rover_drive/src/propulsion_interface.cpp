@@ -145,7 +145,8 @@ namespace rover_drive
             return hardware_interface::return_type::ERROR;
         }
 
-        arduino_.writeMotorValues(forward_left_wheel_.cmd / forward_left_wheel_.rads_per_count / config_.loop_rate, forward_right_wheel_.cmd / forward_right_wheel_.rads_per_count / config_.loop_rate, rear_left_wheel_.cmd / rear_left_wheel_.rads_per_count / config_.loop_rate, rear_right_wheel_.cmd / rear_right_wheel_.rads_per_count / config_.loop_rate);
+        // arduino_.writeMotorValues(forward_left_wheel_.cmd / forward_left_wheel_.rads_per_count / config_.loop_rate, forward_right_wheel_.cmd / forward_right_wheel_.rads_per_count / config_.loop_rate, rear_left_wheel_.cmd / rear_left_wheel_.rads_per_count / config_.loop_rate, rear_right_wheel_.cmd / rear_right_wheel_.rads_per_count / config_.loop_rate);
+        arduino_.writeMotorValues(forward_left_wheel_.cmd, forward_right_wheel_.cmd, rear_left_wheel_.cmd, rear_right_wheel_.cmd);
 
         return hardware_interface::return_type::OK;
     }

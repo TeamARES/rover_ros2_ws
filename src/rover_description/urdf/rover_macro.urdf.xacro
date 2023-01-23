@@ -112,13 +112,13 @@
           <param name="rear_left_wheel_name">rear_left_wheel_joint</param>
           <param name="rear_right_wheel_name">rear_right_wheel_joint</param>
           <param name="loop_rate">30</param>
-          <param name="baud_rate">57600</param>
+          <param name="baud_rate">115200</param>
           <param name="timeout">1000</param>
           <param name="forward_left_enc_counts_per_rev">1000</param>
           <param name="forward_right_enc_counts_per_rev">1000</param>
           <param name="rear_left_enc_counts_per_rev">1000</param>
           <param name="rear_right_enc_counts_per_rev">1000</param>
-          <param name="device">/dev/pts/11</param>
+          <param name="device">/dev/pts/0</param>
         </xacro:unless>
       </hardware>
       <joint name="${prefix}front_left_wheel_joint">
