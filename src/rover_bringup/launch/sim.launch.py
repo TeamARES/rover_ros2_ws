@@ -33,7 +33,7 @@ def generate_launch_description():
         package='controller_manager',
         executable='spawner.py',
         arguments=['joint_state_broadcaster', '-c', '/controller_manager'],
-        respawn=True,
+        # respawn=True,
         output='screen',
     )
 
@@ -41,7 +41,7 @@ def generate_launch_description():
         package='controller_manager',
         executable='spawner.py',
         arguments=['rover_velocity_controller', '-c', '/controller_manager'],
-        respawn=True,
+        # respawn=True,
         output='screen',
     )
 
